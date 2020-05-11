@@ -1,0 +1,287 @@
+#include <iostream>
+#include <conio.h>                  //Нужна для _getch()
+#include <windows.h>
+#include <stdlib.h>
+#include <string>
+using namespace std;
+
+template<typename T>              //Тип переменных Т позволяет нам не зависеть от типа входных данных
+class List {                      //В данном классе будет хранится наш список 
+public:
+    List();
+    void DobavList();             //Добавляет новый элемент списка
+    void DelitList();             //Удаляет выбранный элемент
+    void DelitAll();
+    int GetSizeList();            //Возвращает количество элементов
+    T& operator[](int NomerList); //Позволяет пользоваться списком как массивом
+    void MainMenu();              //Пишет в консоль оформление г.м.
+    void Shapka();                //Шапка проекта и очистка консоли
+    void ProsmotrSpiska();        //Пишет все элементы списка в консоль
+    void PoiskElem();             //Делает поиск
+private:
+    template <typename T>
+    class Node {                  //Создает новый класс, который будет соответсвенным новым элементом
+    public:                       //Могу все оставить в public, ведь сам класс находится внутри private
+        
+        Node* ptrNext;            //Указатель на следующий элемент внутри данного элемента
+        T YourData;               //Данные элемента
+        Node(T YourD = T(), Node* ptrN = nullptr) { 
+            this->ptrNext = ptrN;
+            this->YourData = YourD;
+        }
+    };
+    Node<T>* First;               //Указатель на первый элемент нашего списка
+    int SizeList;                 //Количество элементов
+};
+
+template<typename T>
+List<T>::List()
+{
+    First = nullptr;
+    SizeList = 0;
+}
+
+template<typename T>
+void List<T>::DobavList()
+{
+    cout << "Создание элемента в списке" << endl;
+    cout << "Введите данные элемента (Enter для окончания)" << endl << "->";
+    T YourD = T();
+    cin.clear(); // сбрасывает поток
+    cin.ignore();
+    getline(cin, YourD);
+    cout << "Каким по счету он должен быть? (от 1 до " << SizeList + 1 << ") -> ";
+    int i;
+    cin >> i;
+    while ((cin.fail() == 1) || ((i < 1) || (i > (SizeList + 1)))) // возвращает 1 если установлет failbit или превышен диапозон
+    {
+        cout << "И-ди-от, не сметь обсуждать приказы начальства!" << endl;
+        cout << "Скажу писать определенные значения, будешь писать определенные значения!" << endl;
+        cout << "Скажу умереть за Родину, умрёшь без разговоров! Я ясно излагаю?" << endl;
+        cin.clear(); // сбрасывает поток
+        cin.ignore();
+        cout << endl << "Повторите ввод (от 1 до " << SizeList + 1 << ")-> ";
+        cin >> i;
+    }
+    if (First == nullptr) {
+        First = new Node<T>(YourD);
+    }
+    else {
+        Node<T>* ptrNewAdress = this->First;
+        T Dopoln = T();
+        for(int Size = 1; Size != SizeList; Size++)
+            ptrNewAdress = ptrNewAdress->ptrNext;
+        ptrNewAdress->ptrNext = new Node<T>();
+        ptrNewAdress = this->First;
+        for(int Size = 1; Size <= (SizeList+1); Size++) {
+            if (Size == i) {
+                Dopoln = ptrNewAdress->YourData;
+                ptrNewAdress->YourData = YourD;
+            }
+            else if (Size > i) {
+                YourD = ptrNewAdress->YourData;
+                ptrNewAdress->YourData = Dopoln;
+                Dopoln = YourD;
+            }
+            ptrNewAdress = ptrNewAdress->ptrNext;
+        }
+    }
+    SizeList++;
+    cout << "Добавление прошло успешно" << endl;
+    cout << "Нажмите любую клавишу, чтобы вернуться в главное меню";
+    _getch();
+}
+
+template<typename T>
+void List<T>::DelitList()
+{
+    cout << "Удаление элементов списка" << endl;
+    if (SizeList == 0)
+        cout << "Элементов нет" << endl; 
+    else {
+        cout << "Какой элемент удалить? (от 1 до " << SizeList << ") -> ";
+        int i;
+        cin >> i;
+        while ((cin.fail() == 1) || ((i < 1) || (i > SizeList))) // возвращает 1 если установлет failbit или привышен диапозон
+        {
+            cout << "И-ди-от, не сметь обсуждать приказы начальства!" << endl;
+            cout << "Скажу писать определенные значения, будешь писать определенные значения!" << endl;
+            cout << "Скажу умереть за Родину, умрёшь без разговоров! Я ясно излагаю?" << endl;
+            cin.clear(); // сбрасывает поток
+            cin.ignore();
+            cout << endl << "Повторите ввод (от 1 до " << SizeList<< ")-> ";
+            cin >> i;
+        }   
+        Node<T>* ptrNewAdress = this->First;
+        if (i == 1) {
+            Node<T>* ptrNewAdress = First;
+            First = First->ptrNext;
+            delete ptrNewAdress;
+        }
+        else {
+            Node<T>* ptrDopoln = this->First;
+            int Size = 1;
+            while (Size < i) {
+                ptrDopoln = ptrNewAdress;
+                ptrNewAdress = ptrNewAdress->ptrNext;
+                Size++;
+            }
+            ptrDopoln->ptrNext = ptrNewAdress->ptrNext;
+            delete ptrNewAdress;
+        }
+        SizeList--;
+        cout << "Удаление прошло успешно" << endl;
+    }
+    cout << "Нажмите любую клавишу, чтобы вернуться в главное меню";
+    _getch();
+}
+
+template<typename T>
+void List<T>::DelitAll()
+{
+    cout << "Удаление всех элементов списка..." << endl;
+    if (SizeList == 0)
+        cout << "Элементов нет" << endl;
+    else {
+        int i = 1;
+        Node<T>* ptrNewAdress = this->First;
+        Node<T>* ptrDopoln = this->First;
+        while (SizeList != 0) {
+                ptrNewAdress = First;
+                First = First->ptrNext;
+                delete ptrNewAdress;
+                SizeList--;
+        }
+        cout << "Удаление прошло успешно" << endl;
+    }
+    cout << "Нажмите любую клавишу, чтобы вернуться в главное меню";
+    _getch();
+}
+
+template<typename T>
+int List<T>::GetSizeList()
+{
+    return SizeList;
+}
+
+template<typename T>
+T& List<T>::operator[](int NomerList)
+{
+    int Nomer = 1;
+    Node<T>* ptrAdress = this->First;
+    while (ptrAdress != nullptr) {
+        if (NomerList == Nomer)
+        return ptrAdress->YourData;
+        ptrAdress = ptrAdress->ptrNext;
+        Nomer++;
+    }
+}
+
+template<typename T>
+void List<T>::MainMenu()
+{
+    cout << "Выберите следующее действие (нажмите на нужную клавишу)" << endl;
+    cout << "(1) Создание элемента в списке" << endl;
+    cout << "(2) Удаление элементов списка" << endl;
+    cout << "(3) Просмотр списка" << endl;
+    cout << "(4) Поиск элемента в списке" << endl;
+    cout << "(5) Удаление всех элементов в списке" << endl;
+    cout << "(0) Выход из программы" << endl;
+}
+
+template<typename T>
+void List<T>::Shapka()
+{
+    system("cls");
+    cout << "Односвязный список на С++" << endl;
+    cout << "Список Kniga1";
+    cout << ", количество элементов: " << GetSizeList() << endl << endl;
+}
+
+template<typename T>
+void List<T>::ProsmotrSpiska()
+{
+    cout << "Просмотр списка" << endl;
+    if (SizeList == 0)
+        cout << "Элементов нет" << endl;
+    else
+        for (int FarFor = 1; FarFor <= SizeList; FarFor++)
+            cout << FarFor << ". " << operator[](FarFor) << endl;
+    cout << "Нажмите любую клавишу, чтобы вернуться в главное меню";
+    _getch();
+}
+
+template<typename T>
+void List<T>::PoiskElem()
+{
+    cout << "Поиск элемента в списке" << endl;
+    if (SizeList == 0)
+        cout << "Элементов нет" << endl;
+    else {
+        cout << "Введите содержание элемента, который нужно найти" << endl << "->";
+        T YourD = T();
+        cin.clear(); // сбрасывает поток
+        cin.ignore();
+        getline(cin, YourD);
+        Node<T>* ptrAdress = this->First;
+        int Size = 1;
+        while (ptrAdress != nullptr) {
+            if ((ptrAdress->YourData) == YourD) {
+                cout << "Это " << Size << " элемент списка" << endl;
+                break;
+            }
+            else if ((ptrAdress->ptrNext) == nullptr)
+                cout << "Такого элемента нет" << endl;
+            ptrAdress = ptrAdress->ptrNext;
+            Size++;
+        }
+    }
+    cout << "Нажмите любую клавишу, чтобы вернуться в главное меню";
+    _getch();
+}
+
+int main()
+{
+    setlocale(0, "Russian");    //Позволяет писать русской раскладкой 
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    List<string> Kniga1;           //Создает наш список Kniga1
+    bool Exit = 0;
+    while (Exit != 1) {
+        Kniga1.Shapka();
+        Kniga1.MainMenu();
+        switch (_getch()) {     //Проверка на нажатие 
+        case '0':
+            Exit = 1;
+            break;
+        case '1':
+            Kniga1.Shapka();
+            Kniga1.DobavList();
+            break;
+        case '2':
+            Kniga1.Shapka();
+            Kniga1.DelitList();
+            break;
+        case '3':
+            Kniga1.Shapka();
+            Kniga1.ProsmotrSpiska();
+            break;
+        case '4':
+            Kniga1.Shapka();
+            Kniga1.PoiskElem();
+            break;
+        case '5':
+            Kniga1.Shapka();
+            Kniga1.DelitAll();
+            break;
+        default:
+            Kniga1.Shapka();
+            cout << "Пожалуйста, нажмите на верную горячую клавишу" << endl;
+            cout << "Нажмите любую клавишу, чтобы вернуться";
+            _getch();
+        }
+    }
+    Kniga1.Shapka();
+    cout << "Программа успешно завершена";
+    return 0;
+}
