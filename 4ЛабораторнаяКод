@@ -1,0 +1,42 @@
+#include <SDL.h>
+#include <iostream>
+
+int SDL_main(int argc, char* argv[]) {
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+		std::cout << "Ошибка подключения подсистем SDL! : " << SDL_GetError() << std::endl;
+		return 1;
+	}
+	SDL_Window* Win = SDL_CreateWindow("Dungeoneering", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
+	if (Win == nullptr) {
+		std::cout << "Ошибка создания окна! : " << SDL_GetError() << std::endl;
+		return 1;
+	}
+	SDL_Renderer* Render = SDL_CreateRenderer(Win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (Render == nullptr) {
+		std::cout << "Ошибка рендера! : " << SDL_GetError() << std::endl;
+		return 1;
+	}
+	SDL_Surface* BMP = SDL_LoadBMP("Logo.bmp");
+	if (BMP == nullptr) {
+		std::cout << "Ошибка при загрузке изображения! : " << SDL_GetError() << std::endl;
+		return 1;
+	}
+	SDL_Texture* Texturka = SDL_CreateTextureFromSurface(Render, BMP);
+	SDL_FreeSurface(BMP);
+	if (Texturka == nullptr) {
+		std::cout << "Ошибка загрузки изображения в рендер! : " << SDL_GetError() << std::endl;
+		return 1;
+	}
+	SDL_RenderClear(Render);
+	SDL_RenderCopy(Render, Texturka, NULL, NULL);
+	SDL_RenderPresent(Render);
+
+	SDL_Delay(10000);
+
+	SDL_DestroyTexture(Texturka);
+	SDL_DestroyRenderer(Render);
+	SDL_DestroyWindow(Win);
+
+	SDL_Quit();
+	return 0;
+}
